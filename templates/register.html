@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block body %}
+    <!--form action="/register" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password" type="password">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="confirmation" placeholder="Confirm password" type="password">
+        </div>
+        <button class="btn btn-primary" type="submit">Register</button>
+    </form-->
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Register</h1>
+    </div>
+    <div class="container">
+        <form action="/register" method="post">
+        <div class="row">
+          <div class="col-25">
+            <label for="username" class="formlabel">Username</label>
+          </div>
+          <div class="col-75">
+            <input type="text" id="username" name="username" required class="forminput">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-25">
+            <label for="password" class="formlabel">Password</label>
+          </div>
+          <div class="col-75">
+            <input type="password" id="password" name="password" required class="forminput">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-25">
+            <label for="confirmation" class="formlabel">Confirm Password</label>
+          </div>
+          <div class="col-75">
+            <input type="password" id="confirmation" name="confirmation" required class="forminput">
+          </div>
+        </div>
+        <div class="row">
+              <input type="submit" value="Log In" class="btn btn-secondary">
+        </div>
+        </form>
+    </div>
+
+    <p>Passwords must be at least 8 characters and must contain at least 1 number, 1 lowercase letter, 1 uppercase letter and 1 special character !@#$%^&*()-+?_=,<>/</p>
+{% endblock %}

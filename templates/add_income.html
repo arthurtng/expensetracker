@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Add Income or Expense
+{% endblock %}
+
+{% block body %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Income or Expense</h1>
+  </div>
+
+  <div class="container">
+    <form action="/add_income" method="post">
+      <div class="row">
+        <div class="col-25">
+          <label for="desc" class="formlabel">Description</label>
+        </div>
+        <div class="col-75">
+          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput"><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="type" class="formlabel">Type</label>
+        </div>
+        <div class="col-75">
+          <select id="type" name="type" required class="forminput">
+            <option value="" selected="selected"></option>
+            {% for income_type in income_types %}
+              <option value="{{ income_type }}">{{ income_type }}</option>
+            {% endfor %}
+          </select><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="amount" class="formlabel">Amount</label>
+        </div>
+        <div class="col-75">
+          <input type="number" id="amount" name="amount" step="0.01" required class="forminput"><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="account" class="formlabel">Account</label>
+        </div>
+        <div class="col-75">
+          <select id="account" name="account" required class="forminput">
+            <option value="" selected="selected"></option>
+            {% for account_option in account_options %}
+              <option value="{{ account_option }}">{{ account_option }}</option>
+            {% endfor %}
+          </select><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="start" class="formlabel">Start Date</label>
+        </div>
+        <div class="col-75">
+          <input type="date" id="start" name="start" value="{{ date }}" required class="forminput"><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="frequency" class="formlabel">Frequency</label>
+        </div>
+        <div class="col-75">
+          <select id="frequency" name="frequency" required class="forminput">
+            <option value="" selected="selected"></option>
+            {% for freq_option in freq_options %}
+              <option value="{{ freq_option }}">{{ freq_option }}</option>
+            {% endfor %}
+          </select><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="perp" id="endlabel" class="formlabel">End Date</label>
+        </div>
+        <div class="col-75">
+          <select id="perp" name="perp" value="Specific End Date" class="forminput">
+            <option value="" selected="selected"></option>
+            <option value="perpetual">Perpetual</option>
+            <option value="specific">Specific End Date</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25"></div>
+        <div class="col-75">
+          <input type="date" id="end" name="end" class="forminput">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="remarks" class="formlabel">Remarks</label>
+        </div>
+        <div class="col-75">
+          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput"></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <input type="submit" value="Add Item" class="btn btn-secondary">
+      </div>
+    </form>
+  </div>
+
+
+
+
+  <script>
+    $('#end').hide();
+    $('#frequency').on('change',function(){
+      if( $(this).val()==="monthly"){
+        $("#endlabel").show();
+        $("#perp").show();
+        $("#perp").prop('required',true);
+      }
+      else{
+        $("#endlabel").hide();
+        $("#perp").hide();
+        $("#perp").prop('required',false);
+      }
+    });
+    $('#perp').on('change',function(){
+      if( $(this).val()==="specific"){
+        $("#end").show();
+        $("#end").prop('required',true);
+      }
+      else{
+        $("#end").hide();
+        $("#end").prop('required',false);
+      }
+    });
+  </script>
+
+{% endblock %}

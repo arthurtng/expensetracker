@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Add Budget
+{% endblock %}
+
+{% block body %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Budget</h1>
+  </div>
+  <div class="container">
+    <form action="/add_budget" method="post">
+    <div class="row">
+      <div class="col-25">
+        <label for="desc" class="formlabel">Description</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="desc" name="desc" required maxlength="30" class="forminput">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="amount" class="formlabel">Amount Reserved</label>
+      </div>
+      <div class="col-75">
+        <input type="number" id="amount" name="amount" step="0.01" required class="forminput">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="account" class="formlabel">Account</label>
+      </div>
+      <div class="col-75">
+        <select id="account" name="account" required class="forminput">
+          {% for account_option in account_options %}
+            <option value="{{ account_option }}">{{ account_option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="start" class="formlabel">Start Date</label>
+      </div>
+      <div class="col-75">
+        <input type="date" id="start" name="start" required class="forminput">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="end" class="formlabel">End Date</label>
+      </div>
+      <div class="col-75">
+        <input type="date" id="end" name="end" required class="forminput">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="remarks" class="formlabel">Remarks</label>
+      </div>
+      <div class="col-75">
+        <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput"></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <input type="submit" value="Add Budget" class="btn btn-secondary">
+    </div>
+    </form>
+  </div>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block body %}
+    <!--form action="/login" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password" type="password">
+        </div>
+        <button class="btn btn-primary" type="submit">Log In</button>
+    </form-->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Log In</h1>
+    </div>
+    <div class="container">
+        <form action="/login" method="post">
+        <div class="row">
+          <div class="col-25">
+            <label for="desc" class="formlabel">Username</label>
+          </div>
+          <div class="col-75">
+            <input type="text" id="username" name="username" required class="forminput">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-25">
+            <label for="amount" class="formlabel">Password</label>
+          </div>
+          <div class="col-75">
+            <input type="password" id="password" name="password" required class="forminput">
+          </div>
+        </div>
+        <div class="row">
+              <input type="submit" value="Log In" class="btn btn-secondary">
+        </div>
+        </form>
+    </div>
+{% endblock %}

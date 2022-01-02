@@ -1,0 +1,147 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Income
+{% endblock %}
+
+{% block body %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Income</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div class="btn-group me-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print();">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <h4>{{ date }}</h4>
+
+  <form action="/income" method="post">
+    <input type="month" id="month" name="month" value="{{ render_month }}">
+    <input type="submit" value="Show Report" class="btn btn-secondary">
+  </form>
+
+  <!--<h4>{{ render_month_start }}</h4>-->
+  <!--<h4>{{ render_month_end }}</h4>-->
+  <!--<h4>{{ future_expenses }}</h4>-->
+
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Description</th>
+        <th scope="col">Date</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Remarks</th>
+        <th scope="col">Frequency</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="table-light">
+        <th scope="col">Income</th>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      {% for income in income_list %}
+        <tr>
+          <td>{{ income.desc }}</td>
+          <td>{{ income.start_date }}</td>
+          <td>${{ income.amount }}</td>
+          <td>{{ income.remarks }}</td>
+          <td>{{ income.freq }}</td>
+          <td>
+            <form method="post" action="/edit_income">
+              <input id="income_item" name="income_item" type="hidden" value="{{ income }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      {% for income in future_income %}
+        <tr class="future">
+          <td>{{ income.desc }}</td>
+          <td>{{ income.start_date }}</td>
+          <td>${{ income.amount }}</td>
+          <td>{{ income.remarks }}</td>
+          <td>{{ income.freq }}</td>
+          <td>
+            <form method="post" action="/edit_income">
+              <input id="income_item" name="income_item" type="hidden" value="{{ income }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      <tr class="table-success">
+        <th scope="col">Total Income</th>
+        <td></td>
+        <td>${{ income_sum }}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="table-light">
+        <th scope="col">Expenses</th>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      {% for expense in expenses %}
+        <tr>
+          <td>{{ expense.desc }}</td>
+          <td>{{ expense.start_date }}</td>
+          <td>-${{ expense.amount }}</td>
+          <td>{{ expense.remarks }}</td>
+          <td>{{ expense.freq }}</td>
+          <td>
+            <form method="post" action="/edit_income">
+              <input id="income_item" name="income_item" type="hidden" value="{{ expense }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      {% for expense in future_expenses %}
+        <tr class="future">
+          <td>{{ expense.desc }}</td>
+          <td>{{ expense.start_date }}</td>
+          <td>-${{ expense.amount }}</td>
+          <td>{{ expense.remarks }}</td>
+          <td>{{ expense.freq }}</td>
+          <td>
+            <form method="post" action="/edit_income">
+              <input id="income_item" name="income_item" type="hidden" value="{{ expense }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      <tr class="table-success">
+        <th scope="col">Total Expenses</th>
+        <td></td>
+        <td>-${{ expense_sum }}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="table-warning">
+        <th scope="col">Net Income</th>
+        <td></td>
+        <td>${{ income_sum - expense_sum }}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="/add_income" role="button" class="btn btn-secondary">Add Income or Expense Item</a>
+  <br><br>
+
+{% endblock %}

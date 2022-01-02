@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Resolve Budget {{ budget.desc }}
+{% endblock %}
+
+{% block body %}
+
+  <!--<h2>Resolve Budget {{ budget.desc }}</h2>-->
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Resolve Budget {{ budget.desc }}</h1>
+  </div>
+
+  <!--<p>Description: {{ budget.desc }}</p>-->
+  <!--<p>Amount Reserved: {{ budget.amount }}</p>-->
+  <!--<p>Account: {{ budget.account }}</p>-->
+  <!--<p>Start Date: {{ budget.start_date }}</p>-->
+  <!--<p>End Date: {{ budget.end_date }}</p>-->
+  <!--<p>Remarks: {{ budget.remarks }}</p>-->
+
+  <!--<form method="post">-->
+  <!--  <label for="amount">Amount Actually Spent: </label>-->
+  <!--  <input type="number" id="amount" name="amount" step="0.01" required value="{{ budget.amount }}"><br>-->
+  <!--  <input id="remove_budget" name="remove_budget" type="submit" value="Remove and Resolve" formaction="/resolve_budget" onclick="return confirm('Are you sure you wish to remove and resolve this budget?');">-->
+  <!--</form>-->
+
+  <div class="container">
+    <form method="post">
+      <div class="row">
+        <div class="col-25">
+          <label for="desc" class="formlabel">Description</label>
+        </div>
+        <div class="col-75">
+          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput" value="{{ budget.desc }}" readonly disabled>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="amount" class="formlabel">Amount Reserved</label>
+        </div>
+        <div class="col-75">
+          <input type="number" id="amount" name="amount" step="0.01" required class="forminput" value="{{ budget.amount }}" readonly disabled>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="account" class="formlabel">Account</label>
+        </div>
+        <div class="col-75">
+          <select id="account" name="account" required class="forminput">
+            <option value="{{ budget.account }}" selected="selected" readonly>{{ budget.account }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="start" class="formlabel">Start Date</label>
+        </div>
+        <div class="col-75">
+          <input type="date" id="start" name="start" required class="forminput" value="{{ budget.start_date }}" readonly disabled>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="end" class="formlabel">End Date</label>
+        </div>
+        <div class="col-75">
+          <input type="date" id="end" name="end" required class="forminput" value="{{ budget.end_date }}" readonly disabled>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="remarks" class="formlabel">Remarks</label>
+        </div>
+        <div class="col-75">
+          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput" value="{{ budget.remarks }}" readonly disabled></textarea>
+        </div>
+      </div>
+       <div class="row">
+        <div class="col-25">
+          <label for="newamount" class="formlabel">Amount Actually Spent:</label>
+        </div>
+        <div class="col-75">
+          <input type="number" id="newamount" name="newamount" step="0.01" required value="{{ budget.amount }}" class="forminput">
+        </div>
+      </div><br>
+      <div style="float:right;">
+        <input id="remove_budget" name="remove_budget" type="submit" value="Remove and Resolve" formaction="/resolve_budget" class="btn btn-secondary" onclick="return confirm('Are you sure you wish to remove and resolve this budget?');">
+      </div>
+    </form>
+  </div>
+
+{% endblock %}

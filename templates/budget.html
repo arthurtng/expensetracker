@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Budgeting
+{% endblock %}
+
+{% block body %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Budgets</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div class="btn-group me-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print();">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <h4>{{ date }}</h4>
+
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Description</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Period</th>
+        <th scope="col">Remarks</th>
+        <th scope="col"></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="table-success">
+        <th scope="col">Total Balance</th>
+        <td>${{ total_bal }}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="table-light">
+        <th scope="col">Reserved Budgets</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      {% for budget in budgets %}
+        <tr>
+          <td>{{ budget.desc }}</td>
+          <td>${{ budget.amount }}</td>
+          <td>{{ budget.start_date }} to {{ budget.end_date }}</td>
+          <td>{{ budget.remarks }}</td>
+          <td>
+            <form method="post" action="/edit_budget" style="float:right;">
+              <input id="budget_item" name="budget_item" type="hidden" value="{{ budget }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form>
+          </td>
+          <td>
+            <form method="post" action="/resolve_budget">
+              <input id="budget_item" name="budget_item" type="hidden" value="{{ budget }}">
+              <input type="submit" value="Resolve" class="btn btn-secondary">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      <tr class="table-warning">
+        <th scope="col">Available Balance</th>
+        <td>${{ total_bal - budget_sum }}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="/add_budget" role="button" class="btn btn-secondary">Add Budget</a>
+  <br><br>
+
+{% endblock %}

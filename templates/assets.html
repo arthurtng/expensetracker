@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Assets
+{% endblock %}
+
+{% block body %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Assets</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div class="btn-group me-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print();">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <h4>{{ date }}</h4>
+
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Description</th>
+        <th scope="col">Asset Type</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Remarks</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="table-light">
+        <th scope="col">Assets</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      {% for asset in assets %}
+        <tr>
+          <td>{{ asset.desc }}</td>
+          <td>{{ asset.type }}</td>
+          <td>${{ asset.amount }}</td>
+          <td>{{ asset.remarks }}</td>
+          <td>
+            <form method="post" action="/edit_asset">
+              <input id="asset_item" name="asset_item" type="hidden" value="{{ asset }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      <tr class="table-success">
+        <th scope="col">Total Assets</th>
+        <td></td>
+        <td>${{ asset_sum }}</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="table-light">
+        <th scope="col">Debt</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      {% for liab in liabs %}
+        <tr>
+          <td>{{ liab.desc }}</td>
+          <td>{{ liab.type }}</td>
+          <td>-${{ liab.amount }}</td>
+          <td>{{ liab.remarks }}</td>
+          <td>
+            <form method="post" action="/edit_asset">
+              <input id="asset_item" name="asset_item" type="hidden" value="{{ liab }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      <tr class="table-success">
+        <th scope="col">Total Debt</th>
+        <td></td>
+        <td>-${{ liab_sum }}</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="table-light">
+        <th scope="col">Reserved Budgets</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      {% for budget in budgets %}
+        <tr>
+          <td>{{ budget.desc }}</td>
+          <td></td>
+          <td>-${{ budget.amount }}</td>
+          <td>{{ budget.remarks }}</td>
+          <td><form method="post" action="/edit_budget">
+              <input id="budget_item" name="budget_item" type="hidden" value="{{ budget }}">
+              <input type="submit" value="Edit" class="btn btn-secondary">
+            </form></td>
+        </tr>
+      {% endfor %}
+      <tr class="table-success">
+        <th scope="col">Net Worth</th>
+        <td></td>
+        <td>${{ nworth }}</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="table-warning">
+        <th scope="col">Available Balance</th>
+        <td></td>
+        <td>${{ nworth - budget_sum }}</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="/add_asset" role="button" class="btn btn-secondary">Add Asset or Debt</a>
+  <br><br>
+
+{% endblock %}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+
+        <link href="/static/styles.css" rel="stylesheet">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <title>INout Finance {% block title %}{% endblock %}</title>
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+          <div class="container-fluid">
+            <!--<a class="navbar-brand" href="/">INout Finance</a>-->
+            <!--<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">-->
+            <!--  <span class="navbar-toggler-icon"></span>-->
+            <!--</button>-->
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+              <!--<ul class="navbar-nav me-auto mb-2 mb-md-0">-->
+              <!--  <li class="nav-item">-->
+              <!--    <a class="nav-link" href="/assets">Assets</a>-->
+              <!--  </li>-->
+              <!--  <li class="nav-item">-->
+              <!--    <a class="nav-link" href="/income">Income</a>-->
+              <!--  </li>-->
+              <!--  <li class="nav-item">-->
+              <!--    <a class="nav-link" href="/budget">Budgeting</a>-->
+              <!--  </li>-->
+              <!--</ul>-->
+              <div class="navbar-nav dropdown ms-auto mt-2">
+                {% if session.user_id %}
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                  <!--img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2"-->
+                  <strong>{{ session.username }}</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1" style="">
+                  <!--li><a class="dropdown-item" href="#">Settings</a></li-->
+                  <li><a class="dropdown-item" href="/password">Change Password</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+                </ul>
+                {% endif %}
+                <!--<ul class="navbar-nav mt-2">-->
+                <!--  <li class="nav-item"><a class="nav-link" href="#">Change Password</a></li>-->
+                <!--  <li class="nav-item"><a class="nav-link" href="#">Log Out</a></li>-->
+                <!--</ul>-->
+              </div>
+
+            </div>
+            </div>
+        </nav>
+        <div class="sidenav navbar-dark bg-dark">
+          <a class="navbar-brand" href="/">INout Finance</a>
+          <br><br><br>
+          {% if session.user_id %}
+          <a href="/" class"nav-link">Home</a>
+          <a href="/assets" class"nav-link">Assets</a>
+          <a href="/income" class"nav-link">Income</a>
+          <a href="/budget" class"nav-link">Budgeting</a>
+          {% else %}
+          <a href="/register" class"nav-link">Register</a>
+          <a href="/login" class"nav-link">Login</a>
+          {% endif %}
+        </div>
+
+
+        <div class="main">
+          {% block body %}{% endblock %}
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+    </body>
+</html>

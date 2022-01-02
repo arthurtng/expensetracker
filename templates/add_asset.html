@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Add Asset or Debt
+{% endblock %}
+
+{% block body %}
+
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Asset or Debt</h1>
+  </div>
+
+  <div class="container">
+    <form action="/add_asset" method="post">
+    <div class="row">
+      <div class="col-25">
+        <label for="desc" class="formlabel">Description</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="desc" name="desc" required maxlength="30" class="forminput">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="type" class="formlabel">Type</label>
+      </div>
+      <div class="col-75">
+        <select id="type" name="type" required class="forminput">
+        {% for asset_type in asset_types %}
+          <option value="{{ asset_type }}">{{ asset_type }}</option>
+        {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="amount" class="formlabel">Amount</label>
+      </div>
+      <div class="col-75">
+        <input type="number" id="amount" name="amount" step="0.01" required class="forminput">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="subject" class="formlabel">Remarks</label>
+      </div>
+      <div class="col-75">
+        <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput"></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25"></div>
+      <input type="submit" value="Add Item" class="btn btn-secondary">
+    </div>
+    </form>
+  </div>
+
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Edit {{ income.type }}
+{% endblock %}
+
+{% block body %}
+
+  <h2>Edit {{ income.type }}</h2>
+
+  <div class="container">
+    <form action="/income" method="post">
+      <div class="row">
+        <div class="col-25">
+          <label for="desc" class="formlabel">Description</label>
+        </div>
+        <div class="col-75">
+          <input type="text" id="desc" name="desc" value="{{ income.desc }}" required maxlength="30" class="forminput"><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="amount" class="formlabel">Amount</label>
+        </div>
+        <div class="col-75">
+          <input type="number" id="amount" name="amount" step="0.01" value="{{ income.amount }}" required class="forminput"><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="account" class="formlabel">Account</label>
+        </div>
+        <div class="col-75">
+          <select id="account" name="account" required class="forminput">
+            <option value="{{ income.account }}" selected="selected">{{ income.account }}</option>
+            {% for account_option in account_options %}
+              {% if account_option != income.account %}
+                <option value="{{ account_option }}">{{ account_option }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="start" class="formlabel">Start Date</label>
+        </div>
+        <div class="col-75">
+          <input type="date" id="start" name="start" value="{{ income.start_date }}" required class="forminput"><br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="frequency" class="formlabel">Frequency</label>
+        </div>
+        <div class="col-75">
+          <select id="frequency" name="frequency" required class="forminput">
+            <option value="{{ income.freq }}" selected="selected">{{ income.freq }}</option>
+            {% for freq_option in freq_options %}
+              {% if freq_option != income.freq %}
+                <option value="{{ freq_option }}">{{ freq_option }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="perp" id="endlabel" class="formlabel">End Date</label>
+        </div>
+        <div class="col-75">
+          <select id="perp" name="perp" value="Specific End Date" class="forminput">
+          {% if income.end_date == '3000-01-01' %}
+            <option value="perpetual" selected="selected">Perpetual</option>
+            <option value="specific">Specific End Date</option>
+          {% endif %}
+          {% if income.end_date != '3000-01-01' %}
+            <option value="perpetual">Perpetual</option>
+            <option value="specific" selected="selected">Specific End Date</option>
+          {% endif %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25"></div>
+        <div class="col-75">
+          <input type="date" id="end" name="end" class="forminput" value="{{ income.end_date }}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="remarks" class="formlabel">Remarks</label>
+        </div>
+        <div class="col-75">
+          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" value="{{ income.remarks }}" class="forminput"></textarea>
+        </div>
+      </div>
+      <div style="float:right;">
+        <input type="submit" value="Edit" formaction="/edit_income" class="btn btn-secondary">
+        <input id="delete_income" name="delete_income" type="submit" value="Delete" formaction="/delete_income" class="btn btn-secondary" onclick="return confirm('Are you sure you wish to delete this item?');">
+      </div>
+    </form>
+  </div>
+
+  <!--<form method="post">-->
+  <!--  <label for="desc">Description: </label>-->
+  <!--  <input type="text" id="desc" name="desc" value="{{ income.desc }}" required maxlength="30"><br>-->
+  <!--  <label for="amount">Amount: </label>-->
+  <!--  <input type="number" id="amount" name="amount" step="0.01" value="{{ income.amount }}" required><br>-->
+  <!--  <label for="account">Account: </label>-->
+  <!--  <select id="account" name="account" required>-->
+  <!--    <option value="{{ income.account }}" selected="selected">{{ income.account }}</option>-->
+  <!--    {% for account_option in account_options %}-->
+  <!--      {% if account_option != income.account %}-->
+  <!--        <option value="{{ account_option }}">{{ account_option }}</option>-->
+  <!--      {% endif %}-->
+  <!--    {% endfor %}-->
+  <!--  </select><br>-->
+  <!--  <label for="start">Start Date: </label>-->
+  <!--  <input type="date" id="start" name="start" value="{{ income.start_date }}" required><br>-->
+  <!--  <label for="frequency">Frequency: </label>-->
+  <!--  <select id="frequency" name="frequency" value="{{ income.freq }}" required>-->
+  <!--    <option value="{{ income.freq }}" selected="selected">{{ income.freq }}</option>-->
+  <!--    {% for freq_option in freq_options %}-->
+  <!--      {% if freq_option != income.freq %}-->
+  <!--        <option value="{{ freq_option }}">{{ freq_option }}</option>-->
+  <!--      {% endif %}-->
+  <!--    {% endfor %}-->
+  <!--  </select><br>-->
+  <!--  <label for="end" id="endlabel">End Date: </label>-->
+  <!--  <select id="perp" name="perp">-->
+  <!--    {% if income.end_date == '3000-01-01' %}-->
+  <!--      <option value="perpetual" selected="selected">Perpetual</option>-->
+  <!--      <option value="specific">Specific End Date</option>-->
+  <!--    {% endif %}-->
+  <!--    {% if income.end_date != '3000-01-01' %}-->
+  <!--      <option value="perpetual">Perpetual</option>-->
+  <!--      <option value="specific" selected="selected">Specific End Date</option>-->
+  <!--    {% endif %}-->
+  <!--  </select>-->
+  <!--  <input type="date" id="end" name="end" value="{{ income.end_date }}"><br>-->
+  <!--  <label for="remarks">Remarks: </label>-->
+  <!--  <textarea id="remarks" name="remarks" rows="2" cols="50" value="{{ income.remarks }}" maxlength="150"></textarea><br><br>-->
+  <!--  <input type="submit" value="Edit" formaction="/edit_income">-->
+  <!--  <input id="delete_income" name="delete_income" type="submit" value="Delete" formaction="/delete" onclick="return confirm('Are you sure you wish to delete this item?');">-->
+  <!--</form>-->
+
+  <script>
+    function d(){
+      if( $('#frequency').val()==="monthly"){
+        $("#endlabel").show();
+        $("#perp").show();
+        $("#perp").prop('required',true);
+      }
+      else{
+        $("#endlabel").hide();
+        $("#perp").hide();
+        $("#perp").prop('required',false);
+      }
+    }
+    d();
+    function e(){
+      if($('#perp').val()==="specific") {
+        $('#end').show();
+      }
+      else {
+        $('#end').hide();
+      }
+    }
+    e();
+    $('#frequency').on('change',function(){
+      if( $(this).val()==="monthly"){
+        $("#endlabel").show();
+        $("#perp").show();
+        $("#perp").prop('required',true);
+      }
+      else{
+        $("#endlabel").hide();
+        $("#perp").hide();
+        $("#perp").prop('required',false);
+      }
+    });
+    $('#perp').on('change',function(){
+      if( $(this).val()==="specific"){
+        $("#end").show();
+        $("#end").prop('required',true);
+      }
+      else{
+        $("#end").hide();
+        $("#end").prop('required',false);
+      }
+    });
+    $('#account').on('change',function(e){
+      if($('#frequency').val()==="monthly"){
+        if(!confirm('All previous instances of this item would also be transferred. Are you sure you wish to change the designated account?')){
+          $("#account").val("{{ income.account }}");
+          return;
+        }
+      }
+    });
+  </script>
+
+{% endblock %}
