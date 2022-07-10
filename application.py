@@ -9,8 +9,6 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = 'secret'
 
-# db = SQL("sqlite:///records.db")
-
 conn = sqlite3.connect("records.db")
 cur = conn.cursor()
 
@@ -18,12 +16,8 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 ## Saves todays date to a variable
-# current_date = datetime.datetime.now().strftime("%x")
 current_date = datetime.datetime.now().date()
-MAXCHARS = 30
-MAXREMARKS = 150
-MINPWDCHARS = 8
-
+MAXCHARS, MAXREMARKS, MINPWDCHARS = 30, 150, 8
 
 '''helper functions'''
 
@@ -47,31 +41,21 @@ def check_recurring():
     cur.execute("SELECT * FROM income WHERE freq='monthly' AND start_date<? AND end_date>=? AND user = ?",
         (current_month_start, current_date.strftime("%Y-%m-%d"), session["user_id"]))
     recurring_items = cur.fetchall()
-    #recurring_items = db.execute("SELECT * FROM income WHERE freq='monthly' AND start_date<(?) AND end_date>=(?) AND user = (?)", current_month_start, current_date.strftime("%Y-%m-%d"), session["user_id"])
     for item in recurring_items:
         start_date = item[6]
         while start_date < current_month_start:
-        #while item['start_date'] < current_month_start:
-            #start_date = datetime.datetime.strptime(item['start_date'], '%Y-%m-%d').date()
             formatted_start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
             new_start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date() + datetime.timedelta(days=monthrange(formatted_start_date.year, formatted_start_date.month)[1])
             start_date = new_start_date.strftime("%Y-%m-%d")
-            # item[6] = new_start_date.strftime("%Y-%m-%d")
             cur.execute("SELECT * FROM recurring WHERE item_id=(?) AND start_date=(?) AND user = (?)", (item[0], start_date, session["user_id"]))
-            #existing_recurring = db.execute("SELECT * FROM recurring WHERE item_id=(?) AND start_date=(?) AND user = (?)", item['id'], item['start_date'], session["user_id"])
             existing_recurring = cur.fetchall()
             if not existing_recurring:
-            #     pass
-            # else:
                 with conn:
                     cur.execute("""INSERT INTO recurring (item_id, user, desc, type, amount, account, start_date, freq, remarks, date_of_entry,
                             end_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (item[0], session["user_id"], item[2], item[3],
                             item[4], item[5], start_date, item[7], item[8], datetime.datetime.utcnow(),
                             item[11]))
 
-                # db.execute("INSERT INTO recurring (item_id, user, desc, type, amount, account, start_date, freq, remarks, date_of_entry, end_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                #               item['id'], session["user_id"], item['desc'], item['type'], item['amount'], item['account'], item['start_date'], item['freq'], item['remarks'], datetime.datetime.utcnow(), item['end_date'])
-    return
 
 def check_accruals():
     #Checks marked expenses for accrual and updates assets
@@ -92,27 +76,22 @@ def check_accruals():
     recurring_rows = cur.fetchall()
     for i in range(len(recurring_rows)):
         recurring_rows[i] = recurring_rows[i][1:]
+
     accrued_expense = income_rows + recurring_rows
-    #accrued_income = db.execute("SELECT * FROM income WHERE start_date<=? AND added_account='no' AND type='income' AND user = (?)", current_date.strftime("%Y-%m-%d"), session["user_id"]) + db.execute("SELECT * FROM recurring WHERE start_date<=? AND added_account='no' AND type='income' AND user = (?)", current_date.strftime("%Y-%m-%d"), session["user_id"])
-    #accrued_expense = db.execute("SELECT * FROM income WHERE start_date<=? AND added_account='no' AND type='expense' AND user = (?)", current_date.strftime("%Y-%m-%d"), session["user_id"]) + db.execute("SELECT * FROM recurring WHERE start_date<=? AND added_account='no' AND type='expense' AND user = (?)", current_date.strftime("%Y-%m-%d"), session["user_id"])
     for income in accrued_income:
         with conn:
             cur.execute("UPDATE assets SET amount=amount+?, edit_date=? WHERE desc=? AND user=?", (income[4],
                     str(datetime.datetime.utcnow()), income[5], session["user_id"]))
-        #db.execute("UPDATE assets SET amount=amount+(?), edit_date=(?) WHERE desc=(?) AND user = (?)", income['amount'], str(datetime.datetime.utcnow()), income['account'], session["user_id"])
     for expense in accrued_expense:
         with conn:
             cur.execute("UPDATE assets SET amount=amount-?, edit_date=? WHERE desc=? AND user=?", (expense[4],
                     str(datetime.datetime.utcnow()), expense[5], session["user_id"]))
-        #db.execute("UPDATE assets SET amount=amount-(?), edit_date=(?) WHERE desc=(?) AND user = (?)", expense['amount'], str(datetime.datetime.utcnow()), expense['account'], session["user_id"])
     with conn:
         cur.execute("UPDATE income SET added_account='yes' WHERE income.start_date<=? AND income.added_account='no' AND user=?",
                 (current_date.strftime("%Y-%m-%d"), session["user_id"]))
         cur.execute("UPDATE recurring SET added_account='yes' WHERE start_date<=? AND added_account='no' AND user=?",
                 (current_date.strftime("%Y-%m-%d"), session["user_id"]))
-    # db.execute("UPDATE income SET added_account='yes' WHERE income.start_date<=? AND income.added_account='no' AND user = (?)", current_date.strftime("%Y-%m-%d"), session["user_id"])
-    # db.execute("UPDATE recurring SET added_account='yes' WHERE start_date<=? AND added_account='no' AND user = (?)", current_date.strftime("%Y-%m-%d"), session["user_id"])
-    return
+
 
 def asset_checks(desc, asset_type, amount, remarks, id=None):
 
@@ -127,16 +106,14 @@ def asset_checks(desc, asset_type, amount, remarks, id=None):
     # Implement check for duplicates in desc #
     cur.execute("SELECT * FROM assets WHERE user=?", (session["user_id"],))
     existing_accounts = cur.fetchall()
-    # existing_accounts = db.execute("SELECT * FROM assets WHERE user=?", session["user_id"])
+
     if id:
         for item in existing_accounts:
             if item[2] == desc and item[0] != id:
-            #if item['desc'] == desc and item['ID'] != id:
                 return "The description cannot be the same as that of an existing asset or liability item."
     else:
         for item in existing_accounts:
             if item[2] == desc:
-            # if item['desc'] == desc:
                 return "The description cannot be the same as that of an existing asset or liability item."
 
     # Check amount is 2dp only
@@ -168,7 +145,6 @@ def income_checks(desc, income_or_exp, amount, account, remarks, id=None):
     cur.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=?", (session["user_id"],))
     account_descs = cur.fetchall()
     for item in account_descs:
-    # for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=?", session["user_id"]):
         account_options.append(item[0])
     if account not in account_options:
         return "Account must be a savings, checking, cash account."
@@ -180,29 +156,23 @@ def income_checks(desc, income_or_exp, amount, account, remarks, id=None):
     # Implement check for duplicates in desc #
     cur.execute("SELECT * FROM income WHERE user=?", (session["user_id"],))
     existing_accounts = cur.fetchall()
-    #existing_accounts = db.execute("SELECT * FROM income WHERE user=?", session["user_id"])
     if id:
         for item in existing_accounts:
             if item[2] == desc and item[0] != id:
-            # if item['desc'] == desc and item['id'] != id:
                 return "The description cannot be the same as that of an existing income or expense item."
     else:
         for item in existing_accounts:
             if item[2] == desc:
-            # if item['desc'] == desc:
                 return "The description cannot be the same as that of an existing income or expense item."
 
     # implement checks for expenses that exceed amount in account minus budgets
     budget_total = 0
     cur.execute("SELECT amount FROM budgets WHERE account=? AND user=?", (account, session["user_id"]))
     budgets = cur.fetchall()
-    # budgets = db.execute("SELECT amount FROM budgets WHERE account=? AND user=?", account, session["user_id"])
     for budget in budgets:
         budget_total += budget[0]
-        # budget_total += budget['amount']
     cur.execute("SELECT amount FROM assets WHERE desc=? AND user=?", (account, session["user_id"]))
     account_balance = cur.fetchone()[0]
-    # account_balance = db.execute("SELECT amount FROM assets WHERE desc=? AND user=?", account, session["user_id"])[0]['amount']
     if income_or_exp == "expense" and float(amount) > (account_balance - budget_total):
         return "Expense item may not exceed available balance in designated account."
 
@@ -217,16 +187,13 @@ def budget_checks(desc, amount, account, remarks, start, end, id=None):
     # Implement check for duplicates in desc #
     cur.execute("SELECT * FROM budgets WHERE user=?", (session["user_id"],))
     existing_budgets = cur.fetchall()
-    # existing_budgets = db.execute("SELECT * FROM budgets WHERE user=?", session["user_id"])
     if id:
         for item in existing_budgets:
-           if item[2] == desc and item[0] != id:
-            # if item['desc'] == desc and item['id'] != id:
+            if item[2] == desc and item[0] != id:
                 return "The description cannot be the same as that of an existing budget."
     else:
         for item in existing_budgets:
             if item[2] == desc:
-            # if item['desc'] == desc:
                 return "The description cannot be the same as that of an existing budget."
 
     # Check amount is 2dp only
@@ -238,7 +205,6 @@ def budget_checks(desc, amount, account, remarks, start, end, id=None):
     cur.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=?", (session["user_id"],))
     assets = cur.fetchall()
     for item in assets:
-    # for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=?", session["user_id"]):
         account_options.append(item[0])
     if account not in account_options:
         return "Account must be a savings, checking, cash account."
@@ -251,12 +217,10 @@ def budget_checks(desc, amount, account, remarks, start, end, id=None):
     budget_total = 0
     cur.execute("SELECT amount FROM budgets WHERE account=? AND user=?", (account, session["user_id"]))
     budgets = cur.fetchall()
-    # budgets = db.execute("SELECT amount FROM budgets WHERE account=? AND user=?", account, session["user_id"])
     for budget in budgets:
         budget_total += budget[0]
     cur.execute("SELECT amount FROM assets WHERE desc=? AND user=?", (account, session["user_id"]))
     account_balance = cur.fetchone()[0]
-    # account_balance = db.execute("SELECT amount FROM assets WHERE desc=? AND user=?", account, session["user_id"])[0]['amount']
     if float(amount) > (account_balance - budget_total):
         return "Budget amount may not exceed available balance in designated account."
 
@@ -302,28 +266,21 @@ def retrieve_items(item_list, future_items, item_sum, render_month, render_month
 
     cur.execute("SELECT * FROM income WHERE type=? AND user =?", (item_type, session["user_id"]))
     for income in cur.fetchall():
-    # for income in db.execute("SELECT * FROM income WHERE type=? AND user = (?)", item_type, session["user_id"]):
         relevant_date = datetime.datetime.strptime(income[6], '%Y-%m-%d').date()
         end_date = datetime.datetime.strptime(income[11], '%Y-%m-%d').date()
-        # relevant_date = datetime.datetime.strptime(income['start_date'], '%Y-%m-%d').date()
-        # end_date = datetime.datetime.strptime(income['end_date'], '%Y-%m-%d').date()
         if relevant_date <= current_date and relevant_date >= render_month_start and relevant_date <= render_month_end:
             item_list.append(income)
-            # item_sum += income['amount']
             item_sum += income[4]
         elif relevant_date > current_date and relevant_date <= render_month_end and relevant_date >= render_month_start:
             future_items.append(income)
         elif end_date >= render_month_start and relevant_date < render_month_start:
             start_month = income[6][:-3]
-            # start_month = income['start_date'][:-3]
             new_start_date = income[6].replace(start_month, render_month)
-            #income['start_date'] = income['start_date'].replace(start_month, render_month)
             if datetime.datetime.strptime(new_start_date, '%Y-%m-%d').date() > current_date:
                 future_items.append(income)
             else:
                 item_list.append(income)
                 item_sum += income[4]
-                # item_sum += income['amount']
     return item_sum
 
 
@@ -339,7 +296,6 @@ def register():
 
         cur.execute("SELECT username FROM users")
         users = cur.fetchall()
-        # users = db.execute("SELECT username FROM users")
 
         username = request.form.get("username")
 
@@ -350,7 +306,6 @@ def register():
         # Check if input username already exists
         for user in users:
             if username in user:
-            # if username in i["username"]:
                 return render_template("error.html", message="username already exists")
 
         password = request.form.get("password")
@@ -367,7 +322,6 @@ def register():
         # Add user to database
         with conn:
             cur.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username, generate_password_hash(password)))
-        #db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, generate_password_hash(password))
 
         return redirect("/")
 
@@ -396,10 +350,8 @@ def login():
         # Query database for username
         cur.execute("SELECT * FROM users WHERE username = ?", (request.form.get("username"),))
         rows = cur.fetchall()
-        # rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
-        # if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
         if len(rows) != 1 or not check_password_hash(rows[0][2], request.form.get("password")):
             return render_template("error.html", message="invalid username and/or password")
 
@@ -442,12 +394,10 @@ def password():
         password = request.form.get("old_password")
         new = request.form.get("new_password")
 
-        # rows = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         cur.execute("SELECT * FROM users WHERE id = ?", (session["user_id"],))
         user_entry = cur.fetchone()
 
         # Ensure username exists and password is correct
-        # if not check_password_hash(rows[0]["hash"], password):
         if not check_password_hash(user_entry[2], password):
             return render_template("error.html", message="incorrect password")
 
@@ -459,7 +409,6 @@ def password():
         # Updates password hash in database
         with conn:
             cur.execute("UPDATE users SET hash = ? WHERE id = ?", (generate_password_hash(new), session["user_id"]))
-        #db.execute("UPDATE users SET hash = ? WHERE id = ?", generate_password_hash(new), session["user_id"])
 
         return render_template("password_changed.html")
 
@@ -475,46 +424,33 @@ def index():
 
     cur.execute("SELECT * FROM income WHERE added_account='yes' AND user =? ORDER BY start_date DESC LIMIT 10", (session["user_id"],))
     income_trans = cur.fetchall()
-    #income_trans = db.execute("SELECT * FROM income WHERE added_account='yes' AND user = (?) ORDER BY start_date DESC LIMIT 10", session["user_id"])
     cur.execute("SELECT * FROM recurring WHERE added_account='yes' AND user =? ORDER BY start_date DESC LIMIT 10", (session["user_id"],))
     recurring_trans = cur.fetchall()
-    #recurring_trans = db.execute("SELECT * FROM recurring WHERE added_account='yes' AND user = (?) ORDER BY start_date DESC LIMIT 10", session["user_id"])
     for i in range(len(recurring_trans)):
         recurring_trans[i] = recurring_trans[i][1:]
         recurring_trans[i] += ('dummy',)
     transactions = sorted(income_trans + recurring_trans, key = lambda i: i[6], reverse=True)[:10]
-    # transactions = sorted(income_trans + recurring_trans, key = lambda i: i['start_date'], reverse=True)[:10]
     cur.execute("SELECT * FROM assets WHERE a_or_l='asset' AND user=?", (session["user_id"],))
     assets = cur.fetchall()
-    #assets = db.execute("SELECT * FROM assets WHERE a_or_l='asset' AND user = (?)", session["user_id"])
     cur.execute("SELECT * FROM assets WHERE a_or_l='liability' AND user=?", (session["user_id"],))
     liabs = cur.fetchall()
-    #liabs = db.execute("SELECT * FROM assets WHERE a_or_l='liability' AND user = (?)", session["user_id"])
     balance = 0
     for asset in assets:
         balance += asset[4]
-        #balance += asset['amount']
     for liab in liabs:
         balance -= liab[4]
-        #balance -= liab['amount']
     print(balance)
     for i in range(len(transactions)):
-        # transaction['balance'] = balance
         if transactions[i][3] == "income":
             balance = balance - transactions[i][4]
-        # if transaction['type'] == "income":
-            # balance = balance - transaction['amount']
         else:
             balance = balance + transactions[i][4]
             temp = list(transactions[i])
             temp[4] = temp[4] * -1
             transactions[i] = tuple(temp)
-            # balance = balance + transaction['amount']
-            # transaction['amount'] = transaction['amount'] * -1
         transactions[i] = transactions[i] + (balance,)
 
     coordinates = []
-    # coordinates = transactions[::-1]
     print(transactions)
     for transaction in transactions:
         coordinates.append({'balance': transaction[13], 'start_date': transaction[6]})
@@ -524,7 +460,6 @@ def index():
     return render_template("index.html", transactions=transactions, coordinates=coordinates)
 
 @app.route("/assets")
-#@app.route("/assets", methods=["GET", "POST"])
 @login_required
 def assets():
 
@@ -537,26 +472,20 @@ def assets():
     ## Retrieve assets and debts from asset table
     cur.execute("SELECT * FROM assets WHERE a_or_l='asset' AND user =?", (session["user_id"],))
     assets = cur.fetchall()
-    #assets = db.execute("SELECT * FROM assets WHERE a_or_l='asset' AND user = (?)", session["user_id"])
     cur.execute("SELECT * FROM assets WHERE a_or_l='liability' AND user =?", (session["user_id"],))
     liabs = cur.fetchall()
-    #liabs = db.execute("SELECT * FROM assets WHERE a_or_l='liability' AND user = (?)", session["user_id"])
     cur.execute("SELECT * FROM budgets WHERE end_date>=? AND user = (?)", (current_date.strftime("%Y-%m-%d"), session["user_id"]))
     budgets = cur.fetchall()
-    #budgets = db.execute("SELECT * FROM budgets WHERE end_date>=? AND user = (?)", current_date.strftime("%Y-%m-%d"), session["user_id"])
 
     asset_sum = 0
     for asset in assets:
         asset_sum += asset[4]
-        # asset_sum += asset['amount']
     liab_sum = 0
     for liab in liabs:
         liab_sum += liab[4]
-        # liab_sum += liab['amount']
     budget_sum = 0
     for budget in budgets:
         budget_sum += budget[3]
-        # budget_sum += budget['amount']
     nworth = asset_sum - liab_sum
 
     return render_template("assets.html", date=current_date, assets=assets, liabs=liabs, budgets=budgets, asset_sum=asset_sum,
@@ -588,8 +517,6 @@ def add_asset():
         with conn:
             cur.execute("INSERT INTO assets (user, desc, type, amount, remarks, date, a_or_l) VALUES(?, ?, ?, ?, ?, ?, ?)",
                 (session["user_id"], desc, asset_type, amount, remarks, str(datetime.datetime.utcnow()), asset_or_liab))
-        # db.execute("INSERT INTO assets (user, desc, type, amount, remarks, date, a_or_l) VALUES(?, ?, ?, ?, ?, ?, ?)",
-        #       session["user_id"], desc, asset_type, amount, remarks, str(datetime.datetime.utcnow()), asset_or_liab)
 
         return redirect("/assets")
 
@@ -606,7 +533,6 @@ def income():
 
     ## Processes form for adding asset
     if request.method == "POST":
-        #if request.form.get("month"):
         session["request_month"] = request.form.get("month")
         return redirect("/income")
 
@@ -631,14 +557,11 @@ def income():
         account_options = []
         cur.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user =?", (session["user_id"],))
         accounts = cur.fetchall()
-        #for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user = (?)", session["user_id"]):
         for acc in accounts:
             account_options.append(acc[0])
-            # account_options.append(item['desc'])
         freq_options = ["monthly", "one-off"]
 
         ##SQL queries
-        # incomes = db.execute("SELECT * FROM income WHERE type='income'")
         income_sum = 0
         income_list = []
         future_income = []
@@ -646,12 +569,8 @@ def income():
         # Retrieve income items and add to income_list
         income_sum = retrieve_items(income_list, future_income, income_sum, render_month, render_month_start, render_month_end, 'income')
 
-        # sorted_income = sorted(income_list, key = lambda i: i['start_date'])
-        # sorted_future_income = sorted(future_income, key = lambda i: i['start_date'])
         sorted_income = sorted(income_list, key = lambda i: i[6])
         sorted_future_income = sorted(future_income, key = lambda i: i[6])
-        # print(sorted_income)
-        # print(sorted_future_income)
 
         expenses = []
         future_expenses = []
@@ -662,10 +581,6 @@ def income():
 
         sorted_expenses = sorted(expenses, key = lambda i: i[6])
         sorted_future_expenses = sorted(future_expenses, key = lambda i: i[6])
-        # print(sorted_expenses)
-        # sorted_expenses = sorted(expenses, key = lambda i: i['start_date'])
-        # sorted_future_expenses = sorted(future_expenses, key = lambda i: i['start_date'])
-
 
         return render_template("income.html", date=current_date, render_month=render_month, income_types=income_types, account_options=account_options, freq_options=freq_options, income_list=sorted_income, future_income=sorted_future_income, income_sum=income_sum, expenses=sorted_expenses,
         expense_sum=expense_sum, future_expenses=sorted_future_expenses, render_month_start=render_month_start, render_month_end=render_month_end)
@@ -714,9 +629,6 @@ def add_income():
             cur.execute("""INSERT INTO income (user, desc, type, amount, account, start_date, freq, remarks, date_of_entry, end_date)
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (session["user_id"], desc, income_or_exp, amount, account, start, freq, remarks,
                     now, end))
-        # db.execute("INSERT INTO income (user, desc, type, amount, account, start_date, freq, remarks, date_of_entry, end_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        # session["user_id"], desc, income_or_exp, amount, account, start, freq, remarks, now, end)
-        print(now)
         return redirect("/income")
 
     else:
@@ -727,10 +639,8 @@ def add_income():
         cur.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=?", (session["user_id"],))
         accs = cur.fetchall()
 
-        #for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=(?)", session["user_id"]):
         for acc in accs:
             account_options.append(acc[0])
-            # account_options.append(item['desc'])
         freq_options = ["monthly", "one-off"]
 
         return render_template("add_income.html", income_types=income_types, account_options=account_options, freq_options=freq_options, date=current_date)
@@ -747,36 +657,28 @@ def budget():
     account_options = []
     cur.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=?", (session["user_id"],))
     accs = cur.fetchall()
-    # for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=(?)", session["user_id"]):
-    #     account_options.append(item['desc'])
     for acc in accs:
         account_options.append(acc[0])
 
     # Retrieve Total Balance from assets table
-    #assets = db.execute("SELECT * FROM assets WHERE a_or_l='asset' AND user=(?)", session["user_id"])
     cur.execute("SELECT * FROM assets WHERE a_or_l='asset' AND user=?", (session["user_id"],))
     assets = cur.fetchall()
-    #liabs = db.execute("SELECT * FROM assets WHERE a_or_l='liability' AND user=(?)", session["user_id"])
     cur.execute("SELECT * FROM assets WHERE a_or_l='liability' AND user=?", (session["user_id"],))
     liabs = cur.fetchall()
     asset_sum = 0
     for asset in assets:
         asset_sum += asset[4]
-        # asset_sum += asset['amount']
     liab_sum = 0
     for liab in liabs:
         liab_sum += liab[4]
-        # liab_sum += liab['amount']
     total_bal = asset_sum - liab_sum
 
     # Retrieve budgets from budgets table
     cur.execute("SELECT * FROM budgets WHERE end_date>=? AND user=?", (current_date.strftime("%Y-%m-%d"), session["user_id"]))
     budgets = cur.fetchall()
-    #budgets = db.execute("SELECT * FROM budgets WHERE end_date>=? AND user=(?)", current_date.strftime("%Y-%m-%d"), session["user_id"])
     budget_sum = 0
     for budget in budgets:
         budget_sum += budget[3]
-        #budget_sum += budget['amount']
 
     return render_template("budget.html", date=current_date, total_bal=total_bal, account_options=account_options, budgets=budgets, budget_sum=budget_sum)
 
@@ -806,8 +708,6 @@ def add_budget():
             cur.execute("""INSERT INTO budgets (user, desc, amount, account, start_date, end_date, remarks, date_of_entry)
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?)""", (session["user_id"], desc, amount, account, start, end, remarks,
                     str(datetime.datetime.utcnow())))
-        # db.execute("INSERT INTO budgets (user, desc, amount, account, start_date, end_date, remarks, date_of_entry) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-        # session["user_id"], desc, amount, account, start, end, remarks, str(datetime.datetime.utcnow()))
 
         return redirect("/budget")
 
@@ -819,8 +719,6 @@ def add_budget():
         accs = cur.fetchall()
         for acc in accs:
             account_options.append(acc[0])
-        # for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=(?)", session["user_id"]):
-        #     account_options.append(item['desc'])
 
         return render_template("add_budget.html", account_options=account_options)
 
@@ -834,7 +732,6 @@ def edit_income():
         print(session["edit_item"])
         cur.execute("SELECT * FROM income WHERE id=?", (session["edit_item"][0],))
         original_item = cur.fetchone()
-       #original_item = db.execute("SELECT * FROM income WHERE id=?", session["edit_item"]['id'])
 
         ## Options for adding income form
         account_options = []
@@ -842,11 +739,8 @@ def edit_income():
         accs = cur.fetchall()
         for acc in accs:
             account_options.append(acc[0])
-        # for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=(?)", session["user_id"]):
-        #     account_options.append(item['desc'])
         freq_options = ["monthly", "one-off"]
 
-        # if session["edit_item"]['end_date'] == "3000-01-01":
         if session["edit_item"][11] == "3000-01-01":
             perp = "Perpetual"
         else:
@@ -875,8 +769,6 @@ def edit_income():
 
         # Function for checking certain requirements for income and expense items
         # Last argument is 1 because theres should be one same name in the list of items - the existing item
-        # if income_checks(desc, session["edit_item"]['type'], amount, account, remarks, session["edit_item"]['id']):
-        #     return render_template("error.html", message=income_checks(desc, session["edit_item"]['type'], amount, account, remarks, session["edit_item"]['id']))
         if income_checks(desc, session["edit_item"][3], amount, account, remarks, session["edit_item"][0]):
             return render_template("error.html", message=income_checks(desc, session["edit_item"][3], amount,
                     account, remarks, session["edit_item"][0]))
@@ -897,35 +789,25 @@ def edit_income():
             cur.execute("""UPDATE income SET desc=(?), amount=(?), account=(?), start_date=(?), freq=(?), remarks=(?), last_edited=(?),
                     end_date=(?), added_account=(?) WHERE id=(?)""", (desc, amount, account, start, freq, remarks,
                     str(datetime.datetime.utcnow()), end, "no", session["edit_item"][0]))
-        # db.execute("UPDATE income SET desc=(?), amount=(?), account=(?), start_date=(?), freq=(?), remarks=(?), last_edited=(?), end_date=(?), added_account=(?) WHERE id=(?)",
-        #           desc, amount, account, start, freq, remarks, str(datetime.datetime.utcnow()), end, "no", session["edit_item"]['id'])
 
         # Removes rows in recurring table
         cur.execute("SELECT * FROM recurring WHERE item_id=(?) AND added_account=(?)", (session["edit_item"][0], "yes"))
         added = cur.fetchall()
-        #added = db.execute("SELECT * FROM recurring WHERE item_id=(?) AND added_account=(?)", session["edit_item"]['id'], "yes")
         removed_amount = 0
         for item in added:
             removed_amount += item[5]
-            # removed_amount += item['amount']
         with conn:
             cur.execute("DELETE FROM recurring WHERE item_id=?", (session['edit_item'][0],))
-        #db.execute("DELETE FROM recurring WHERE item_id=?", session['edit_item']['id'])
 
         # Resets relevant row in asset table
-        # if session['edit_item']['added_account'] == "yes":
         if session['edit_item'][10] == "yes":
-            # if session['edit_item']['type'] == "income":
             if session['edit_item'][3] == "income":
-                # removed_amount = (removed_amount + session['edit_item']['amount']) * -1
                 removed_amount = (removed_amount + session['edit_item'][4]) * -1
             else:
-                # removed_amount = removed_amount + session['edit_item']['amount']
                 removed_amount = removed_amount + session['edit_item'][4]
         with conn:
             cur.execute("UPDATE assets SET amount=amount+(?) WHERE desc=(?) AND user=(?)", (removed_amount, session['edit_item'][5],
                     session["user_id"]))
-        #db.execute("UPDATE assets SET amount=amount+(?) WHERE desc=(?) AND user=(?)", removed_amount, session['edit_item']['account'], session["user_id"])
 
         return redirect("/income")
 
@@ -934,27 +816,16 @@ def edit_income():
 @login_required
 def delete_income():
 
-    # # Obtains original item for manipulation
-    # original_item = db.execute("SELECT * FROM income WHERE id=?", session["edit_item"]['id'])
-
     # Removes rows in recurring table
     cur.execute("SELECT * FROM recurring WHERE item_id=(?) AND added_account=(?)", (session["edit_item"][0], "yes"))
     added = cur.fetchall()
-    #added = db.execute("SELECT * FROM recurring WHERE item_id=(?) AND added_account=(?)", session["edit_item"]['id'], "yes")
     removed_amount = 0
     for item in added:
         removed_amount += item[5]
-        # removed_amount += item['amount']
     with conn:
         cur.execute("DELETE FROM recurring WHERE item_id=?", (session['edit_item'][0],))
-    #db.execute("DELETE FROM recurring WHERE item_id=?", session['edit_item']['id'])
 
     # Resets relevant row in asset table
-    # if session['edit_item']['added_account'] == "yes":
-    #     if session['edit_item']['type'] == "income":
-    #         removed_amount = (removed_amount + session['edit_item']['amount']) * -1
-    #     else:
-    #         removed_amount = removed_amount + session['edit_item']['amount']
     if session['edit_item'][10] == "yes":
         if session['edit_item'][3] == "income":
             removed_amount = (removed_amount + session['edit_item'][4]) * -1
@@ -963,12 +834,10 @@ def delete_income():
     with conn:
         cur.execute("UPDATE assets SET amount=amount+(?) WHERE desc=(?) AND user=(?)", (removed_amount, session['edit_item'][5],
                 session["user_id"]))
-    #db.execute("UPDATE assets SET amount=amount+(?) WHERE desc=(?) AND user=(?)", removed_amount, session['edit_item']['account'], session["user_id"])
 
     # Deletes row in income table
     with conn:
         cur.execute("DELETE FROM income WHERE id=?", (session["edit_item"][0],))
-    #db.execute("DELETE FROM income WHERE id=?", session["edit_item"]['id'])
 
     return redirect("/income")
 
@@ -977,8 +846,6 @@ def delete_income():
 def edit_asset():
     if request.form.get("asset_item"):
         session["edit_asset"] = eval(request.form.get("asset_item"))
-
-        # original_item = db.execute("SELECT * FROM assets WHERE id=?", session["edit_asset"]['ID'])
 
         asset_types = ["savings, checking, cash", "securities", "property", "debt"]
 
@@ -997,17 +864,12 @@ def edit_asset():
         # Implement check amount must not be below income + expenses + budget relating to account
         cur.execute("SELECT * FROM income WHERE account=(?) AND added_account=(?) AND user=(?)", (session["edit_asset"][2], "yes", session["user_id"]))
         income_items = cur.fetchall()
-        #income_items = db.execute("SELECT * FROM income WHERE account=(?) AND added_account=(?) AND user=(?)", session["edit_asset"]['desc'], "yes", session["user_id"])
         income_total = 0
         for item in income_items:
             if item[3] == "income":
                 income_total += item[4]
             else:
                 income_total -= item[4]
-            # if item['type'] == "income":
-            #     income_total += item['amount']
-            # else:
-            #     income_total -= item['amount']
 
         if float(amount) < income_total:
             return render_template("error.html", message="Error: amount in account cannot be less than amount of net income input into it.")
@@ -1016,8 +878,6 @@ def edit_asset():
         with conn:
             cur.execute("UPDATE assets SET desc=(?), type=(?), amount=(?), remarks=(?), edit_date=(?) WHERE ID=(?)",
                    (desc, asset_type, amount, remarks, str(datetime.datetime.utcnow()), session["edit_asset"][0]))
-        # db.execute("UPDATE assets SET desc=(?), type=(?), amount=(?), remarks=(?), edit_date=(?) WHERE ID=(?)",
-        #           desc, asset_type, amount, remarks, str(datetime.datetime.utcnow()), session["edit_asset"]['ID'])
 
         return redirect("/assets")
 
@@ -1038,12 +898,6 @@ def delete_asset():
                     account_options.append(item[2])
                 elif session["edit_asset"][7] == "asset" and item[3] == "savings, checking, cash":
                     account_options.append(item[2])
-        # for item in db.execute("SELECT * FROM assets WHERE type='savings, checking, cash' OR type='debt' AND user=(?)", session["user_id"]):
-        #     if item['desc'] != session["edit_asset"]['desc']:
-        #         if session["edit_asset"]['a_or_l'] == "liability" and item['type'] == "debt":
-        #             account_options.append(item['desc'])
-        #         elif session["edit_asset"]['a_or_l'] == "asset" and item['type'] == "savings, checking, cash":
-        #             account_options.append(item['desc'])
 
         return render_template("delete_asset.html", asset=session["edit_asset"], account_options=account_options)
 
@@ -1054,10 +908,6 @@ def delete_asset():
             cur.execute("DELETE FROM recurring WHERE account=? AND user=(?)", (session["edit_asset"][2], session["user_id"]))
             cur.execute("DELETE FROM budgets WHERE account=? AND user=(?)", (session["edit_asset"][2], session["user_id"]))
             cur.execute("DELETE FROM assets WHERE desc=? AND user=(?)", (session["edit_asset"][2], session["user_id"]))
-        # db.execute("DELETE FROM income WHERE account=? AND user=(?)", session["edit_asset"]['desc'], session["user_id"])
-        # db.execute("DELETE FROM recurring WHERE account=? AND user=(?)", session["edit_asset"]['desc'], session["user_id"])
-        # db.execute("DELETE FROM budgets WHERE account=? AND user=(?)", session["edit_asset"]['desc'], session["user_id"])
-        # db.execute("DELETE FROM assets WHERE desc=? AND user=(?)", session["edit_asset"]['desc'], session["user_id"])
 
         return redirect("/assets")
 
@@ -1070,29 +920,20 @@ def transfer_asset():
     # Check if budgets, income, expenses all added up brings transfer account amount to subzero
     cur.execute("SELECT amount FROM assets WHERE desc=? AND user=(?)", (transfer_account, session["user_id"]))
     transfer_account_balance = cur.fetchall()
-    # transfer_account_balance = db.execute("SELECT amount FROM assets WHERE desc=? AND user=(?)", transfer_account, session["user_id"])
     transfer_amount = 0
     cur.execute("SELECT amount FROM income WHERE account=(?) AND type=(?) AND user=(?)", (session["edit_asset"][2], 'income', session["user_id"]))
     inc_rows = cur.fetchall()
     cur.execute("SELECT amount FROM recurring WHERE account=(?) AND type=(?) AND user=(?)", (session["edit_asset"][2], 'income', session["user_id"]))
     transfer_income = inc_rows + cur.fetchall()
-    # transfer_income = db.execute("SELECT amount FROM income WHERE account=(?) AND type=(?) AND user=(?)", session["edit_asset"]['desc'], 'income', session["user_id"])\
-    # + db.execute("SELECT amount FROM recurring WHERE account=(?) AND type=(?) AND user=(?)", session["edit_asset"]['desc'], 'income', session["user_id"])
+
     cur.execute("SELECT amount FROM income WHERE account=(?) AND type=(?) AND user=(?)", (session["edit_asset"][2], 'expense', session["user_id"]))
     exp_rows = cur.fetchall()
     cur.execute("SELECT amount FROM recurring WHERE account=(?) AND type=(?) AND user=(?)", (session["edit_asset"][2], 'expense', session["user_id"]))
     transfer_expenses = exp_rows + cur.fetchall()
-    # transfer_expenses = db.execute("SELECT amount FROM income WHERE account=(?) AND type=(?) AND user=(?)", session["edit_asset"]['desc'], 'expense', session["user_id"])\
-    # + db.execute("SELECT amount FROM recurring WHERE account=(?) AND type=(?) AND user=(?)", session["edit_asset"]['desc'], 'expense', session["user_id"])
+
     cur.execute("SELECT amount FROM budgets WHERE account=? AND user=(?)", (session["edit_asset"][2], session["user_id"]))
     transfer_budgets = cur.fetchall()
-    # transfer_budgets = db.execute("SELECT amount FROM budgets WHERE account=? AND user=(?)", session["edit_asset"]['desc'], session["user_id"])
-    # for item in transfer_income:
-    #     transfer_amount += item['amount']
-    # for item in transfer_expenses:
-    #     transfer_amount -= item['amount']
-    # for item in transfer_budgets:
-    #     transfer_amount -= item['amount']
+
     for item in transfer_income:
         transfer_amount += item[0]
     for item in transfer_expenses:
@@ -1122,13 +963,8 @@ def transfer_asset():
 
         cur.execute("UPDATE assets SET amount=? WHERE desc=? AND user=?", (new_bal + adjustment, transfer_account, session["user_id"]))
 
-    # db.execute("UPDATE income SET account=(?), added_account='no' WHERE account=(?) AND user=(?)", transfer_account, session["edit_asset"]['desc'], session["user_id"])
-    # db.execute("UPDATE recurring SET account=(?), added_account='no' WHERE account=(?) AND user=(?)", transfer_account, session["edit_asset"]['desc'], session["user_id"])
-    # db.execute("UPDATE budgets SET account=(?) WHERE account=(?) AND user=(?)", transfer_account, session["edit_asset"]['desc'], session["user_id"])
-
         # Delete account from assets
         cur.execute("DELETE FROM assets WHERE desc=? AND user=(?)", (session["edit_asset"][2], session["user_id"]))
-    #db.execute("DELETE FROM assets WHERE desc=? AND user=(?)", session["edit_asset"]['desc'], session["user_id"])
 
     return redirect("/assets")
 
@@ -1140,8 +976,6 @@ def edit_budget():
         account_options = []
         cur.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=(?)", (session["user_id"],))
         accs = cur.fetchall()
-        # for item in db.execute("SELECT desc FROM assets WHERE a_or_l='asset' AND type='savings, checking, cash' AND user=(?)", session["user_id"]):
-        #     account_options.append(item['desc'])
         for item in accs:
             account_options.append(item[0])
 
@@ -1149,7 +983,6 @@ def edit_budget():
 
         return render_template("edit_budget.html", budget=session["edit_budget"], account_options=account_options)
 
-    #elif request.form.get("edit_budget"):
     else:
 
         desc = request.form.get("desc")
@@ -1172,8 +1005,6 @@ def edit_budget():
         with conn:
             cur.execute("UPDATE budgets SET desc=?, amount=?, account=?, start_date=?, end_date=?, remarks=? WHERE id=? AND user=?",
                     (desc, amount, account, start, end, remarks, session["edit_budget"][0], session["user_id"]))
-        # db.execute("UPDATE budgets SET desc=(?), amount=(?), account=(?), start_date=(?), end_date=(?), remarks=(?) WHERE id=(?) AND user=(?)",
-        # desc, amount, account, start, end, remarks, session["edit_budget"]['id'], session["user_id"])
 
         return redirect("/budget")
 
@@ -1183,7 +1014,6 @@ def delete_budget():
 
     with conn:
         cur.execute("DELETE FROM budgets WHERE id=?", (session["edit_budget"][0],))
-    # db.execute("DELETE FROM budgets WHERE id=?", session["edit_budget"]['id'])
 
     return redirect("/budget")
 
@@ -1202,7 +1032,6 @@ def resolve_budget():
         spent_amount = float(request.form.get("newamount"))
 
         cur.execute("SELECT amount FROM assets WHERE desc=? AND user=?", (session["resolve_budget"][4], session["user_id"]))
-        #account_balance = db.execute("SELECT amount FROM assets WHERE desc=? AND user=(?)", session["resolve_budget"]['account'], session["user_id"])[0]['amount']
         account_balance = cur.fetchone()[0]
 
         if spent_amount > account_balance:
@@ -1215,8 +1044,6 @@ def resolve_budget():
                 cur.execute("UPDATE assets SET amount=? WHERE desc=? AND user=?", (new_amount, session["resolve_budget"][4], session["user_id"]))
                 cur.execute("INSERT INTO resolved_budgets SELECT * FROM budgets WHERE id=?", (session["resolve_budget"][0],))
                 cur.execute("DELETE FROM budgets WHERE id=?", (session["resolve_budget"][0],))
-            # db.execute("UPDATE assets SET amount=(?) WHERE desc=(?) AND user=(?)", new_amount, session["resolve_budget"]['account'], session["user_id"])
-            # db.execute("INSERT INTO resolved_budgets SELECT * FROM budgets WHERE id=?", session["resolve_budget"]['id'])
-            # db.execute("DELETE FROM budgets WHERE id=?", session["resolve_budget"]['id'])
+
             return redirect("/budget")
 
