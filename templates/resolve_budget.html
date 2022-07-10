@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Resolve Budget {{ budget.desc }}
+    Resolve Budget {{ budget[2] }}
 {% endblock %}
 
 {% block body %}
 
   <!--<h2>Resolve Budget {{ budget.desc }}</h2>-->
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Resolve Budget {{ budget.desc }}</h1>
+    <h1 class="h2">Resolve Budget {{ budget[2] }}</h1>
   </div>
 
   <!--<p>Description: {{ budget.desc }}</p>-->
@@ -31,7 +31,7 @@
           <label for="desc" class="formlabel">Description</label>
         </div>
         <div class="col-75">
-          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput" value="{{ budget.desc }}" readonly disabled>
+          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput" value="{{ budget[2] }}" readonly disabled>
         </div>
       </div>
       <div class="row">
@@ -39,7 +39,7 @@
           <label for="amount" class="formlabel">Amount Reserved</label>
         </div>
         <div class="col-75">
-          <input type="number" id="amount" name="amount" step="0.01" required class="forminput" value="{{ budget.amount }}" readonly disabled>
+          <input type="number" id="amount" name="amount" step="0.01" required class="forminput" value="{{ budget[3] }}" readonly disabled>
         </div>
       </div>
       <div class="row">
@@ -48,7 +48,7 @@
         </div>
         <div class="col-75">
           <select id="account" name="account" required class="forminput">
-            <option value="{{ budget.account }}" selected="selected" readonly>{{ budget.account }}</option>
+            <option value="{{ budget[4] }}" selected="selected" readonly>{{ budget[4] }}</option>
           </select>
         </div>
       </div>
@@ -57,7 +57,7 @@
           <label for="start" class="formlabel">Start Date</label>
         </div>
         <div class="col-75">
-          <input type="date" id="start" name="start" required class="forminput" value="{{ budget.start_date }}" readonly disabled>
+          <input type="date" id="start" name="start" required class="forminput" value="{{ budget[5] }}" readonly disabled>
         </div>
       </div>
       <div class="row">
@@ -65,7 +65,7 @@
           <label for="end" class="formlabel">End Date</label>
         </div>
         <div class="col-75">
-          <input type="date" id="end" name="end" required class="forminput" value="{{ budget.end_date }}" readonly disabled>
+          <input type="date" id="end" name="end" required class="forminput" value="{{ budget[6] }}" readonly disabled>
         </div>
       </div>
       <div class="row">
@@ -73,7 +73,7 @@
           <label for="remarks" class="formlabel">Remarks</label>
         </div>
         <div class="col-75">
-          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput" value="{{ budget.remarks }}" readonly disabled></textarea>
+          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput" value="{{ budget[7] }}" readonly disabled></textarea>
         </div>
       </div>
        <div class="row">
@@ -81,7 +81,7 @@
           <label for="newamount" class="formlabel">Amount Actually Spent:</label>
         </div>
         <div class="col-75">
-          <input type="number" id="newamount" name="newamount" step="0.01" required value="{{ budget.amount }}" class="forminput">
+          <input type="number" id="newamount" name="newamount" step="0.01" required value="{{ budget[3] }}" class="forminput">
         </div>
       </div><br>
       <div style="float:right;">

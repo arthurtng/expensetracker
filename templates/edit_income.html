@@ -1,12 +1,14 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Edit {{ income.type }}
+    <!--Edit {{ income.type }}-->
+    Edit {{ income[3] }}
 {% endblock %}
 
 {% block body %}
 
-  <h2>Edit {{ income.type }}</h2>
+  <!--<h2>Edit {{ income.type }}</h2>-->
+  <h2>Edit {{ income[3] }}</h2>
 
   <div class="container">
     <form action="/income" method="post">
@@ -15,7 +17,8 @@
           <label for="desc" class="formlabel">Description</label>
         </div>
         <div class="col-75">
-          <input type="text" id="desc" name="desc" value="{{ income.desc }}" required maxlength="30" class="forminput"><br>
+          <input type="text" id="desc" name="desc" value="{{ income[2] }}" required maxlength="30" class="forminput"><br>
+          <!--<input type="text" id="desc" name="desc" value="{{ income.desc }}" required maxlength="30" class="forminput"><br>-->
         </div>
       </div>
       <div class="row">
@@ -23,7 +26,8 @@
           <label for="amount" class="formlabel">Amount</label>
         </div>
         <div class="col-75">
-          <input type="number" id="amount" name="amount" step="0.01" value="{{ income.amount }}" required class="forminput"><br>
+          <input type="number" id="amount" name="amount" step="0.01" value="{{ income[4] }}" required class="forminput"><br>
+          <!--<input type="number" id="amount" name="amount" step="0.01" value="{{ income.amount }}" required class="forminput"><br>-->
         </div>
       </div>
       <div class="row">
@@ -32,9 +36,9 @@
         </div>
         <div class="col-75">
           <select id="account" name="account" required class="forminput">
-            <option value="{{ income.account }}" selected="selected">{{ income.account }}</option>
+            <option value="{{ income[5] }}" selected="selected">{{ income[5] }}</option>
             {% for account_option in account_options %}
-              {% if account_option != income.account %}
+              {% if account_option != income[5] %}
                 <option value="{{ account_option }}">{{ account_option }}</option>
               {% endif %}
             {% endfor %}
@@ -46,7 +50,8 @@
           <label for="start" class="formlabel">Start Date</label>
         </div>
         <div class="col-75">
-          <input type="date" id="start" name="start" value="{{ income.start_date }}" required class="forminput"><br>
+          <input type="date" id="start" name="start" value="{{ income[6] }}" required class="forminput"><br>
+          <!--<input type="date" id="start" name="start" value="{{ income.start_date }}" required class="forminput"><br>-->
         </div>
       </div>
       <div class="row">
@@ -55,9 +60,9 @@
         </div>
         <div class="col-75">
           <select id="frequency" name="frequency" required class="forminput">
-            <option value="{{ income.freq }}" selected="selected">{{ income.freq }}</option>
+            <option value="{{ income[7] }}" selected="selected">{{ income[7] }}</option>
             {% for freq_option in freq_options %}
-              {% if freq_option != income.freq %}
+              {% if freq_option != income[7] %}
                 <option value="{{ freq_option }}">{{ freq_option }}</option>
               {% endif %}
             {% endfor %}
@@ -70,11 +75,11 @@
         </div>
         <div class="col-75">
           <select id="perp" name="perp" value="Specific End Date" class="forminput">
-          {% if income.end_date == '3000-01-01' %}
+          {% if income[11] == '3000-01-01' %}
             <option value="perpetual" selected="selected">Perpetual</option>
             <option value="specific">Specific End Date</option>
           {% endif %}
-          {% if income.end_date != '3000-01-01' %}
+          {% if income[11] != '3000-01-01' %}
             <option value="perpetual">Perpetual</option>
             <option value="specific" selected="selected">Specific End Date</option>
           {% endif %}
@@ -84,7 +89,8 @@
       <div class="row">
         <div class="col-25"></div>
         <div class="col-75">
-          <input type="date" id="end" name="end" class="forminput" value="{{ income.end_date }}">
+          <input type="date" id="end" name="end" class="forminput" value="{{ income[11] }}">
+          <!--<input type="date" id="end" name="end" class="forminput" value="{{ income.end_date }}">-->
         </div>
       </div>
       <div class="row">
@@ -92,7 +98,8 @@
           <label for="remarks" class="formlabel">Remarks</label>
         </div>
         <div class="col-75">
-          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" value="{{ income.remarks }}" class="forminput"></textarea>
+          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" value="{{ income[8] }}" class="forminput"></textarea>
+          <!--<textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" value="{{ income.remarks }}" class="forminput"></textarea>-->
         </div>
       </div>
       <div style="float:right;">
@@ -156,11 +163,12 @@
         $("#endlabel").hide();
         $("#perp").hide();
         $("#perp").prop('required',false);
+        $('#end').hide();
       }
     }
     d();
     function e(){
-      if($('#perp').val()==="specific") {
+      if($('#frequency').val()==="monthly" && $('#perp').val()==="specific") {
         $('#end').show();
       }
       else {
@@ -179,6 +187,7 @@
         $("#perp").hide();
         $("#perp").prop('required',false);
       }
+      e();
     });
     $('#perp').on('change',function(){
       if( $(this).val()==="specific"){
@@ -193,7 +202,8 @@
     $('#account').on('change',function(e){
       if($('#frequency').val()==="monthly"){
         if(!confirm('All previous instances of this item would also be transferred. Are you sure you wish to change the designated account?')){
-          $("#account").val("{{ income.account }}");
+          // $("#account").val("{{ income.account }}");
+          $("#account").val("{{ income[5] }}");
           return;
         }
       }

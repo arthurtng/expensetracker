@@ -48,11 +48,11 @@
       </tr>
       {% for income in income_list %}
         <tr>
-          <td>{{ income.desc }}</td>
-          <td>{{ income.start_date }}</td>
-          <td>${{ income.amount }}</td>
-          <td>{{ income.remarks }}</td>
-          <td>{{ income.freq }}</td>
+          <td>{{ income[2] }}</td>
+          <td>{{ income[6] }}</td>
+          <td>${{ income[4] }}</td>
+          <td>{{ income[8] }}</td>
+          <td>{{ income[7] }}</td>
           <td>
             <form method="post" action="/edit_income">
               <input id="income_item" name="income_item" type="hidden" value="{{ income }}">
@@ -63,11 +63,11 @@
       {% endfor %}
       {% for income in future_income %}
         <tr class="future">
-          <td>{{ income.desc }}</td>
-          <td>{{ income.start_date }}</td>
-          <td>${{ income.amount }}</td>
-          <td>{{ income.remarks }}</td>
-          <td>{{ income.freq }}</td>
+          <td>{{ income[2] }}</td>
+          <td>{{ income[6] }}</td>
+          <td>${{ income[4] }}</td>
+          <td>{{ income[8] }}</td>
+          <td>{{ income[7] }}</td>
           <td>
             <form method="post" action="/edit_income">
               <input id="income_item" name="income_item" type="hidden" value="{{ income }}">
@@ -94,11 +94,11 @@
       </tr>
       {% for expense in expenses %}
         <tr>
-          <td>{{ expense.desc }}</td>
-          <td>{{ expense.start_date }}</td>
-          <td>-${{ expense.amount }}</td>
-          <td>{{ expense.remarks }}</td>
-          <td>{{ expense.freq }}</td>
+          <td>{{ expense[2] }}</td>
+          <td>{{ expense[6] }}</td>
+          <td>-${{ expense[4] }}</td>
+          <td>{{ expense[8] }}</td>
+          <td>{{ expense[7] }}</td>
           <td>
             <form method="post" action="/edit_income">
               <input id="income_item" name="income_item" type="hidden" value="{{ expense }}">
@@ -109,11 +109,11 @@
       {% endfor %}
       {% for expense in future_expenses %}
         <tr class="future">
-          <td>{{ expense.desc }}</td>
-          <td>{{ expense.start_date }}</td>
-          <td>-${{ expense.amount }}</td>
-          <td>{{ expense.remarks }}</td>
-          <td>{{ expense.freq }}</td>
+          <td>{{ expense[2] }}</td>
+          <td>{{ expense[6] }}</td>
+          <td>-${{ expense[4] }}</td>
+          <td>{{ expense[8] }}</td>
+          <td>{{ expense[7] }}</td>
           <td>
             <form method="post" action="/edit_income">
               <input id="income_item" name="income_item" type="hidden" value="{{ expense }}">

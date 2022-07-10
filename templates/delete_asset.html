@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Delete {{ asset.a_or_l }}
+    Delete {{ asset[7] }}
 {% endblock %}
 
 {% block body %}
 
   <!--<h2>Edit {{ asset.a_or_l }}</h2>-->
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Delete {{ asset.a_or_l }}</h1>
+    <h1 class="h2">Delete {{ asset[7] }}</h1>
   </div>
 
   <p>Would you like to delete all budgets, income and expense items relating to this account or transfer them to another account?</p>
@@ -23,7 +23,7 @@
           <select id="transfer_account" name="transfer_account" class="forminput">
             <option value="" disabled selected hidden>Choose another account</option>
             {% for account_option in account_options %}
-              {% if account_option != asset.desc %}
+              {% if account_option != asset[2] %}
                 <option value="{{ account_option }}">{{ account_option }}</option>
               {% endif %}
             {% endfor %}

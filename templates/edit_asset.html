@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Edit {{ asset.a_or_l }}
+    Edit {{ asset[7] }}
 {% endblock %}
 
 {% block body %}
 
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Edit {{ asset.a_or_l }}</h1>
+    <h1 class="h2">Edit {{ asset[7] }}</h1>
   </div>
 
   <div class="container">
@@ -17,7 +17,7 @@
           <label for="desc" class="formlabel">Description</label>
         </div>
         <div class="col-75">
-          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput" value="{{ asset.desc }}">
+          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput" value="{{ asset[2] }}">
         </div>
       </div>
       <div class="row">
@@ -25,11 +25,11 @@
           <label for="type" class="formlabel">Type</label>
         </div>
         <div class="col-75">
-          <select id="type" name="type" required class="forminput" value="{{ asset.type }}">
-          <option value="{{ asset.type }}" selected="selected">{{ asset.type }}</option>
-          {% if asset.a_or_l == "asset" %}
+          <select id="type" name="type" required class="forminput" value="{{ asset[3] }}">
+          <option value="{{ asset[3] }}" selected="selected">{{ asset[3] }}</option>
+          {% if asset[7] == "asset" %}
             {% for asset_type in asset_types %}
-              {% if asset_type != asset.type and asset_type != "debt" %}
+              {% if asset_type != asset[3] and asset_type != "debt" %}
                 <option value="{{ asset_type }}">{{ asset_type }}</option>
               {% endif %}
             {% endfor %}
@@ -42,7 +42,7 @@
           <label for="amount" class="formlabel">Amount</label>
         </div>
         <div class="col-75">
-          <input type="number" id="amount" name="amount" step="0.01" required class="forminput" value="{{ asset.amount }}">
+          <input type="number" id="amount" name="amount" step="0.01" required class="forminput" value="{{ asset[4] }}">
         </div>
       </div>
       <div class="row">
@@ -50,7 +50,7 @@
           <label for="subject" class="formlabel">Remarks</label>
         </div>
         <div class="col-75">
-          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput" value="{{ asset.remarks }}"></textarea>
+          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput" value="{{ asset[5] }}"></textarea>
         </div>
       </div>
       <div style="float:right;">

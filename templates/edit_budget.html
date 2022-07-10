@@ -1,39 +1,15 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Edit {{ budget.desc }}
+    Edit {{ budget[2] }}
 {% endblock %}
 
 {% block body %}
 
   <!--<h2>Edit {{ budget.desc }}</h2>-->
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Edit {{ budget.desc }}</h1>
+    <h1 class="h2">Edit {{ budget[2] }}</h1>
   </div>
-
-  <!--<form method="post" id="edit">-->
-  <!--  <label for="desc">Description: </label>-->
-  <!--  <input type="text" id="desc" name="desc" required value="{{ budget.desc }}" maxlength="30"><br>-->
-  <!--  <label for="amount">Amount Reserved: </label>-->
-  <!--  <input type="number" id="amount" name="amount" step="0.01" required value="{{ budget.amount }}"><br>-->
-  <!--  <label for="account">Account: </label>-->
-  <!--  <select id="account" name="account" required>-->
-  <!--    <option value="{{ budget.account }}" selected="selected">{{ budget.account }}</option>-->
-  <!--    {% for account_option in account_options %}-->
-  <!--      {% if account_option != budget.account %}-->
-  <!--        <option value="{{ account_option }}">{{ account_option }}</option>-->
-  <!--      {% endif %}-->
-  <!--    {% endfor %}-->
-  <!--  </select><br>-->
-  <!--  <label for="start">Start Date: </label>-->
-  <!--  <input type="date" id="start" name="start" required value="{{ budget.start_date }}"><br>-->
-  <!--  <label for="end">End Date: </label>-->
-  <!--  <input type="date" id="end" name="end" required value="{{ budget.end_date }}"><br>-->
-  <!--  <label for="remarks">Remarks: </label>-->
-  <!--  <textarea id="remarks" name="remarks" rows="2" cols="50" value="{{ budget.remarks }}" maxlength="150"></textarea><br><br>-->
-  <!--  <input id="edit_budget" name="edit_budget" type="submit" value="Edit" formaction="/edit_budget">-->
-  <!--  <input id="delete_budget" name="delete_budget" type="submit" value="Delete" formaction="/edit_budget" onclick="return confirm('Are you sure you wish to delete this budget?');">-->
-  <!--</form>-->
 
   <div class="container">
     <form method="post">
@@ -42,7 +18,7 @@
           <label for="desc" class="formlabel">Description</label>
         </div>
         <div class="col-75">
-          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput" value="{{ budget.desc }}" >
+          <input type="text" id="desc" name="desc" required maxlength="30" class="forminput" value="{{ budget[2] }}" >
         </div>
       </div>
       <div class="row">
@@ -50,7 +26,7 @@
           <label for="amount" class="formlabel">Amount Reserved</label>
         </div>
         <div class="col-75">
-          <input type="number" id="amount" name="amount" step="0.01" required class="forminput" value="{{ budget.amount }}">
+          <input type="number" id="amount" name="amount" step="0.01" required class="forminput" value="{{ budget[3] }}">
         </div>
       </div>
       <div class="row">
@@ -59,7 +35,7 @@
         </div>
         <div class="col-75">
           <select id="account" name="account" required class="forminput">
-            <option value="{{ budget.account }}" selected="selected">{{ budget.account }}</option>
+            <option value="{{ budget[4] }}" selected="selected">{{ budget[4] }}</option>
             {% for account_option in account_options %}
               {% if account_option != budget.account %}
                 <option value="{{ account_option }}">{{ account_option }}</option>
@@ -73,7 +49,7 @@
           <label for="start" class="formlabel">Start Date</label>
         </div>
         <div class="col-75">
-          <input type="date" id="start" name="start" required class="forminput" value="{{ budget.start_date }}">
+          <input type="date" id="start" name="start" required class="forminput" value="{{ budget[5] }}">
         </div>
       </div>
       <div class="row">
@@ -81,7 +57,7 @@
           <label for="end" class="formlabel">End Date</label>
         </div>
         <div class="col-75">
-          <input type="date" id="end" name="end" required class="forminput" value="{{ budget.end_date }}">
+          <input type="date" id="end" name="end" required class="forminput" value="{{ budget[6] }}">
         </div>
       </div>
       <div class="row">
@@ -89,7 +65,7 @@
           <label for="remarks" class="formlabel">Remarks</label>
         </div>
         <div class="col-75">
-          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput" value="{{ budget.remarks }}"></textarea>
+          <textarea id="remarks" name="remarks" rows="2" cols="50" maxlength="150" class="forminput" value="{{ budget[7] }}"></textarea>
         </div>
       </div>
       <div style="float:right;">
