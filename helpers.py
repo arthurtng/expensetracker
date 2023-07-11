@@ -205,31 +205,6 @@ def budget_checks(desc, amount, account, remarks, start, end, id=None):
 
     return None
 
-def pwd_checks(password, confirmation):
-
-    # Check password is at least 8 characters
-    if len(password) < MINPWDCHARS:
-        return "passwords must be at least 8 characters long"
-
-    # Check password contains at least 1 number, 1 lowercase, 1 uppercase and 1 special character
-    digit, upper, special, lower = False, False, False, False
-    for char in password:
-        if char.isdigit():
-            digit = True
-        if char.isupper():
-            upper = True
-        if char in "!@#$%^&*()-+?_=,<>/":
-            special = True
-        if char.islower():
-            lower = True
-
-    if not (digit or upper or special or lower):
-        return "Passwords must contain at least 1 number, 1 lowercase letter, 1 uppercase letter and 1 special character !@#$%^&*()-+?_=,<>/"
-
-     # Check user confirmed password correctly
-    if password != confirmation:
-        return "passwords do not match"
-
 def retrieve_items(item_list, future_items, item_sum, render_month, render_month_start, render_month_end, item_type):
 
     for income in data.query("SELECT * FROM income WHERE type=? AND user =?", (item_type, session["user_id"])):

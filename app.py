@@ -6,8 +6,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import data
 from helpers import *
+from auth import auth_routes
 
 app = Flask(__name__)
+app.register_blueprint(auth_routes.auth)
 app.secret_key = 'secret'
 
 app.config["SESSION_TYPE"] = "filesystem"
@@ -15,129 +17,6 @@ Session(app)
 
 ## Saves todays date to a variable
 current_date = datetime.datetime.now().date()
-
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    """Register user"""
-
-    if request.method == "POST":
-
-        users = data.query("SELECT username FROM users")
-
-        username = request.form.get("username")
-
-        # Check user input username
-        if not username:
-            return render_template("error.html", message="Please provide username.")
-
-        # Check if input username already exists
-        for user in users:
-            if username in user:
-                return render_template("error.html", message="username already exists")
-
-        password = request.form.get("password")
-
-        # Check user input a password
-        if not password:
-            return render_template("error.html", message="must provide password")
-
-        confirmation = request.form.get("confirmation")
-
-        if pwd_checks(password, confirmation):
-            return render_template("error.html", message=pwd_checks(password, confirmation))
-
-        # Add user to database
-        data.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username, generate_password_hash(password)))
-        return redirect("/")
-
-    else:
-
-        return render_template("register.html")
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    """Log user in"""
-
-    # Forget any user_id
-    session.clear()
-
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
-
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            return render_template("error.html", message="Please provide username.")
-
-        # Ensure password was submitted
-        if not request.form.get("password"):
-            return render_template("error.html", message="must provide password")
-
-        # Query database for username
-        rows = data.query("SELECT * FROM users WHERE username = ?", (request.form.get("username"),))
-
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]['hash'], request.form.get("password")):
-            return render_template("error.html", message="invalid username and/or password")
-
-        # Remember which user has logged in
-        session["user_id"] = rows[0]['id']
-        session["username"] = request.form.get("username")
-
-        # Redirect user to home page
-        return redirect("/")
-
-    # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
-
-@app.route("/logout")
-def logout():
-    """Log user out"""
-
-    # Forget any user_id
-    session.clear()
-
-    # Redirect user to login form
-    return redirect("/")
-
-@app.route("/password", methods=["GET", "POST"])
-@login_required
-def password():
-    """Change User Password"""
-
-    if request.method == "POST":
-
-        # Check user input old password
-        if not request.form.get("old_password"):
-            return render_template("error.html", message="must provide old password")
-
-        # Check user input new password
-        if not request.form.get("new_password"):
-            return render_template("error.html", message="must provide new password")
-
-        password = request.form.get("old_password")
-        new = request.form.get("new_password")
-
-        user_entry = data.query("SELECT * FROM users WHERE id = ?", (session["user_id"],))[0]
-
-        # Ensure username exists and password is correct
-        if not check_password_hash(user_entry['hash'], password):
-            return render_template("error.html", message="incorrect password")
-
-        confirmation = request.form.get("confirmation")
-
-        if pwd_checks(new, confirmation):
-            return render_template("error.html", message=pwd_checks(password, confirmation))
-
-        # Updates password hash in database
-        data.execute("UPDATE users SET hash = ? WHERE id = ?", (generate_password_hash(new), session["user_id"]))
-
-        return render_template("password_changed.html")
-
-    else:
-
-        return render_template("password.html")
 
 @app.route("/")
 @login_required
