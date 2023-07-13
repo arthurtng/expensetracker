@@ -28,22 +28,13 @@ current_date = datetime.datetime.now().date()
 @app.route("/")
 @login_required
 def index():
-
-    check_accruals()
+    check_accruals()    
     
     assets = data.query("SELECT * FROM assets WHERE a_or_l='asset' AND user=?", (session["user_id"],))
-    liabs = data.query("SELECT * FROM assets WHERE a_or_l='liability' AND user=?", (session["user_id"],))
-    balance = get_balance(assets, liabs)
+    liabs = data.query("SELECT * FROM assets WHERE a_or_l='liability' AND user=?", (session["user_id"],))    
     transactions = get_transactions()
-
-    for i in range(len(transactions)):
-        transactions[i]['balance'] = balance
-        if transactions[i]['type'] == "income":
-            balance = balance - transactions[i]['amount']
-        else:
-            balance = balance + transactions[i]['amount']
-            transactions[i]['amount'] = transactions[i]['amount'] * -1
-
+    
+    balance = get_balance(assets, liabs, transactions)
     coordinates = calculate_coordinates(transactions, balance)
     return render_template("index.html", transactions=transactions, coordinates=coordinates)
 
@@ -52,12 +43,17 @@ def get_transactions():
     recurring_trans = data.query("SELECT * FROM recurring WHERE added_account='yes' AND user =? ORDER BY start_date DESC LIMIT 10", (session["user_id"],))
     return sorted(income_trans + recurring_trans, key = lambda i: i['start_date'], reverse=True)[:10]
 
-def get_balance(assets, liabs):
+def get_balance(assets, liabs, transactions):
     balance = 0    
-    for asset in assets:
-        balance += asset['amount']
-    for liab in liabs:
-        balance -= liab['amount']  
+    for asset in assets: balance += asset['amount']
+    for liab in liabs: balance -= liab['amount']  
+    for i in range(len(transactions)):
+        transactions[i]['balance'] = balance
+        if transactions[i]['type'] == "income":
+            balance = balance - transactions[i]['amount']
+        else:
+            balance = balance + transactions[i]['amount']
+            transactions[i]['amount'] = transactions[i]['amount'] * -1
     return balance
 
 def calculate_coordinates(transactions, balance):
@@ -65,3 +61,4 @@ def calculate_coordinates(transactions, balance):
     if not transactions:
         coordinates.append({'balance': balance, 'start_date': current_date.strftime("%Y-%m-%d")})
     return coordinates
+
