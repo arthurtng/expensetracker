@@ -35,14 +35,10 @@
           <tbody>
             {% for transaction in transactions %}
               <tr>
-                <!--<td>{{ transaction.start_date }}</td>-->
-                <!--<td>{{ transaction.desc }}</td>-->
-                <!--<td>${{ transaction.amount }}</td>-->
-                <!--<td>${{ transaction.balance }}</td>-->
-                <td>{{ transaction[6] }}</td>
-                <td>{{ transaction[2] }}</td>
-                <td>${{ transaction[4] }}</td>
-                <td>${{ transaction[13] }}</td>
+                <td>{{ transaction.start_date }}</td>
+                <td>{{ transaction.desc }}</td>
+                <td>${{ transaction.amount }}</td>
+                <td>${{ transaction.balance }}</td>                
               </tr>
             {% endfor %}
 
