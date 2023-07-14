@@ -38,10 +38,12 @@ def index():
     coordinates = calculate_coordinates(transactions, balance)
     return render_template("index.html", transactions=transactions, coordinates=coordinates)
 
+
 def get_transactions():
     income_trans = data.query("SELECT * FROM income WHERE added_account='yes' AND user =? ORDER BY start_date DESC LIMIT 10", (session["user_id"],))
     recurring_trans = data.query("SELECT * FROM recurring WHERE added_account='yes' AND user =? ORDER BY start_date DESC LIMIT 10", (session["user_id"],))
     return sorted(income_trans + recurring_trans, key = lambda i: i['start_date'], reverse=True)[:10]
+
 
 def get_balance(assets, liabs, transactions):
     balance = 0    
@@ -55,6 +57,7 @@ def get_balance(assets, liabs, transactions):
             balance = balance + transactions[i]['amount']
             transactions[i]['amount'] = transactions[i]['amount'] * -1
     return balance
+
 
 def calculate_coordinates(transactions, balance):
     coordinates = transactions[::-1]
