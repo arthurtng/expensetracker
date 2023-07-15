@@ -72,7 +72,7 @@ def check_accruals():
                 (current_date.strftime("%Y-%m-%d"), session["user_id"]))
 
 
-def asset_checks(desc, asset_type, amount, remarks, id=None):
+def validate_asset_entry(desc, asset_type, amount, remarks, id=None):
 
     # Check desc is 30 characters or less
     if len(desc) > MAXCHARS:
