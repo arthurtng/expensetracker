@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_PATH = "../records.db"
+DB_PATH = "records.db"
 
 
 # Simplifies querying database and returns list of rows as dicts
